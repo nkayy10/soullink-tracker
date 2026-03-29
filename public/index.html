@@ -8,76 +8,107 @@
 :root {
     --red: #e63946;
     --red-dark: #c1121f;
-    --bg: #f1f3f8;
-    --card: #ffffff;
-    --border: #e5e7eb;
-    --text: #1f2937;
+    --bg: #0f172a;
+    --card: #1e293b;
+    --text: #e5e7eb;
+    --border: #334155;
 }
 
 body {
     margin: 0;
-    font-family: system-ui, sans-serif;
+    font-family: system-ui;
     background: var(--bg);
     color: var(--text);
 }
 
+/* HEADER */
 header {
-    background: var(--red);
-    color: white;
-    padding: 18px;
-    text-align: center;
-    font-size: 22px;
+    background: #020617;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.title {
+    font-size: 18px;
     font-weight: 600;
 }
 
+/* MENU */
+.menu {
+    position: relative;
+}
+
+.menu-btn {
+    background: var(--card);
+    border: none;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.menu-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    background: var(--card);
+    padding: 10px;
+    border-radius: 10px;
+    width: 200px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.menu:hover .menu-content {
+    display: block;
+}
+
+/* LAYOUT */
 .container {
-    max-width: 1000px;
+    max-width: 900px;
     margin: auto;
     padding: 20px;
 }
 
-/* Cards */
+/* CARD */
 .card {
     background: var(--card);
     padding: 20px;
-    border-radius: 18px;
+    border-radius: 16px;
     margin-bottom: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
-/* Inputs */
+/* INPUT */
 .label {
     font-size: 13px;
+    color: #94a3b8;
     margin-bottom: 5px;
-    display: block;
-    color: #666;
 }
 
 input {
     width: 100%;
-    padding: 12px;
-    border-radius: 12px;
+    padding: 10px;
+    border-radius: 10px;
     border: 1px solid var(--border);
-    margin-bottom: 12px;
-    font-size: 14px;
+    background: #020617;
+    color: white;
+    margin-bottom: 10px;
 }
 
-/* Grid sauber */
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 10px;
 }
 
-/* Buttons */
+/* BUTTON */
 .btn {
-    padding: 12px;
-    border-radius: 25px;
+    padding: 10px;
+    border-radius: 20px;
     border: none;
-    font-weight: 600;
     cursor: pointer;
-    margin-top: 10px;
-    transition: 0.2s;
+    font-weight: 600;
 }
 
 .primary {
@@ -90,14 +121,11 @@ input {
 }
 
 .secondary {
-    background: #eef0f5;
+    background: #334155;
+    color: white;
 }
 
-.secondary:hover {
-    background: #e2e5ec;
-}
-
-/* Table */
+/* TABLE */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -106,78 +134,67 @@ table {
 th {
     text-align: left;
     padding: 10px;
-    font-size: 13px;
-    color: #666;
-    border-bottom: 2px solid var(--border);
+    color: #94a3b8;
+    border-bottom: 1px solid var(--border);
 }
 
 td {
-    padding: 14px 10px;
+    padding: 12px;
     border-bottom: 1px solid var(--border);
     text-align: center;
 }
 
 tr:hover {
-    background: #fafafa;
+    background: #020617;
 }
 
-/* Modal */
+/* MODAL */
 .modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0,0,0,0.6);
 }
 
 .modal-content {
-    background: white;
+    background: var(--card);
     padding: 20px;
-    border-radius: 16px;
-    width: 320px;
+    border-radius: 12px;
+    width: 300px;
     margin: 15% auto;
     text-align: center;
-}
-
-.modal-buttons {
-    display: flex;
-    gap: 10px;
-    margin-top: 10px;
 }
 </style>
 </head>
 
 <body>
 
-<header>SoulLink Tracker</header>
+<header>
+    <div class="title">SoulLink Tracker</div>
+
+    <!-- Backup Menü -->
+    <div class="menu">
+        <button class="menu-btn">Backup</button>
+        <div class="menu-content">
+            <button class="btn secondary" onclick="downloadData()">Download</button>
+            <input type="file" onchange="uploadData(event)">
+        </div>
+    </div>
+</header>
 
 <div class="container">
 
 <!-- Eingabe -->
 <div class="card">
 
-    <label class="label">Route</label>
-    <input id="route" placeholder="z. B. Route 1">
+    <div class="label">Route</div>
+    <input id="route">
 
     <div class="grid">
-        <div>
-            <label class="label">Janik</label>
-            <input id="janik">
-        </div>
-
-        <div>
-            <label class="label">Tim</label>
-            <input id="tim">
-        </div>
-
-        <div>
-            <label class="label">Nils</label>
-            <input id="nils">
-        </div>
-
-        <div>
-            <label class="label">Niki</label>
-            <input id="niki">
-        </div>
+        <input id="janik" placeholder="Janik">
+        <input id="tim" placeholder="Tim">
+        <input id="nils" placeholder="Nils">
+        <input id="niki" placeholder="Niki">
     </div>
 
     <button class="btn primary" onclick="send()">Speichern</button>
@@ -188,12 +205,6 @@ tr:hover {
 <!-- Suche -->
 <div class="card">
     <input id="search" placeholder="Suchen..." oninput="loadData()">
-</div>
-
-<!-- Backup -->
-<div class="card">
-    <button class="btn secondary" onclick="downloadData()">Backup herunterladen</button>
-    <input type="file" onchange="uploadData(event)">
 </div>
 
 <!-- Tabelle -->
@@ -217,18 +228,15 @@ tr:hover {
 <!-- Modal -->
 <div id="modal" class="modal">
     <div class="modal-content">
-        <p>"gugugaga" eingeben zum Löschen</p>
+        <p>"gugugaga" eingeben</p>
         <input id="confirmText">
-
-        <div class="modal-buttons">
-            <button class="btn primary" onclick="confirmReset()">Bestätigen</button>
-            <button class="btn secondary" onclick="closeModal()">Abbrechen</button>
-        </div>
+        <button class="btn primary" onclick="confirmReset()">Bestätigen</button>
+        <button class="btn secondary" onclick="closeModal()">Abbrechen</button>
     </div>
 </div>
 
 <script>
-// SEND
+// SAVE + RESET INPUTS
 function send() {
     const route = document.getElementById("route").value;
 
@@ -251,10 +259,17 @@ function send() {
         });
     });
 
+    // 👉 INPUTS LEEREN
+    document.getElementById("route").value = "";
+    document.getElementById("janik").value = "";
+    document.getElementById("tim").value = "";
+    document.getElementById("nils").value = "";
+    document.getElementById("niki").value = "";
+
     setTimeout(loadData, 200);
 }
 
-// LOAD + SEARCH + GROUP
+// LOAD + SEARCH
 async function loadData() {
     const res = await fetch("/data");
     const data = await res.json();
@@ -296,7 +311,6 @@ async function loadData() {
 function openModal() {
     document.getElementById("modal").style.display = "block";
 }
-
 function closeModal() {
     document.getElementById("modal").style.display = "none";
 }
@@ -309,11 +323,11 @@ function confirmReset() {
             loadData();
         });
     } else {
-        alert("Falsches Wort");
+        alert("Falsch");
     }
 }
 
-// DOWNLOAD
+// BACKUP
 function downloadData() {
     fetch("/data")
     .then(res => res.json())
@@ -321,34 +335,24 @@ function downloadData() {
         const blob = new Blob([JSON.stringify(data, null, 2)]);
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = "soullink-backup.json";
+        a.download = "backup.json";
         a.click();
     });
 }
 
-// UPLOAD
 function uploadData(e) {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-
     reader.onload = function(evt) {
-        try {
-            const json = JSON.parse(evt.target.result);
+        const json = JSON.parse(evt.target.result);
 
-            fetch("/import", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(json)
-            }).then(() => {
-                alert("Backup geladen");
-                loadData();
-            });
-
-        } catch {
-            alert("Ungültige Datei");
-        }
+        fetch("/import", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(json)
+        }).then(loadData);
     };
 
     reader.readAsText(file);
