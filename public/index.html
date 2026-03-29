@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SoulLink Tracker</title>
+</head>
+<body>
+    <h1>Pokemon SoulLink Tracker</h1>
+
+    <input id="route" placeholder="Route"><br><br>
+
+    <input id="janik" placeholder="Janik"><br>
+    <input id="tim" placeholder="Tim"><br>
+    <input id="nils" placeholder="Nils"><br>
+    <input id="niki" placeholder="Niki"><br><br>
+
+    <button onclick="send()">Speichern</button>
+
+    <script>
+        function send() {
+            const route = document.getElementById("route").value;
+
+            const players = [
+                { player: "Janik", pokemonName: document.getElementById("janik").value },
+                { player: "Tim", pokemonName: document.getElementById("tim").value },
+                { player: "Nils", pokemonName: document.getElementById("nils").value },
+                { player: "Niki", pokemonName: document.getElementById("niki").value }
+            ];
+
+            players.forEach(p => {
+                fetch("/add", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        location: route,
+                        player: p.player,
+                        pokemonName: p.pokemonName
+                    })
+                });
+            });
+
+            alert("Gespeichert!");
+        }
+    </script>
+</body>
+</html>
