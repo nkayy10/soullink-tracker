@@ -6,18 +6,18 @@
 
 <style>
 :root {
-    --red: #d62828;
-    --red-dark: #a61c1c;
-    --bg: #f6f7fb;
+    --red: #e63946;
+    --red-dark: #c1121f;
+    --bg: #f1f3f8;
     --card: #ffffff;
-    --text: #222;
     --border: #e5e7eb;
+    --text: #1f2937;
 }
 
 body {
-    font-family: system-ui, Arial;
-    background: var(--bg);
     margin: 0;
+    font-family: system-ui, sans-serif;
+    background: var(--bg);
     color: var(--text);
 }
 
@@ -36,15 +36,16 @@ header {
     padding: 20px;
 }
 
+/* Cards */
 .card {
     background: var(--card);
-    border-radius: 16px;
     padding: 20px;
+    border-radius: 18px;
     margin-bottom: 20px;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
 }
 
-/* INPUT */
+/* Inputs */
 .label {
     font-size: 13px;
     margin-bottom: 5px;
@@ -54,27 +55,29 @@ header {
 
 input {
     width: 100%;
-    padding: 10px;
-    border-radius: 10px;
+    padding: 12px;
+    border-radius: 12px;
     border: 1px solid var(--border);
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     font-size: 14px;
 }
 
+/* Grid sauber */
 .grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    gap: 12px;
 }
 
-/* BUTTONS */
+/* Buttons */
 .btn {
-    padding: 10px;
-    border-radius: 20px;
+    padding: 12px;
+    border-radius: 25px;
     border: none;
     font-weight: 600;
     cursor: pointer;
     margin-top: 10px;
+    transition: 0.2s;
 }
 
 .primary {
@@ -87,14 +90,14 @@ input {
 }
 
 .secondary {
-    background: #eee;
+    background: #eef0f5;
 }
 
 .secondary:hover {
-    background: #ddd;
+    background: #e2e5ec;
 }
 
-/* TABLE */
+/* Table */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -109,28 +112,36 @@ th {
 }
 
 td {
-    padding: 12px 10px;
+    padding: 14px 10px;
     border-bottom: 1px solid var(--border);
+    text-align: center;
 }
 
 tr:hover {
     background: #fafafa;
 }
 
-/* MODAL */
+/* Modal */
 .modal {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.4);
+    background: rgba(0,0,0,0.5);
 }
 
 .modal-content {
     background: white;
     padding: 20px;
-    border-radius: 14px;
-    width: 300px;
+    border-radius: 16px;
+    width: 320px;
     margin: 15% auto;
+    text-align: center;
+}
+
+.modal-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
 }
 </style>
 </head>
@@ -174,6 +185,11 @@ tr:hover {
 
 </div>
 
+<!-- Suche -->
+<div class="card">
+    <input id="search" placeholder="Suchen..." oninput="loadData()">
+</div>
+
 <!-- Backup -->
 <div class="card">
     <button class="btn secondary" onclick="downloadData()">Backup herunterladen</button>
@@ -203,7 +219,11 @@ tr:hover {
     <div class="modal-content">
         <p>"gugugaga" eingeben zum Löschen</p>
         <input id="confirmText">
-        <button class="btn primary" onclick="confirmReset()">Bestätigen</button>
+
+        <div class="modal-buttons">
+            <button class="btn primary" onclick="confirmReset()">Bestätigen</button>
+            <button class="btn secondary" onclick="closeModal()">Abbrechen</button>
+        </div>
     </div>
 </div>
 
@@ -234,10 +254,12 @@ function send() {
     setTimeout(loadData, 200);
 }
 
-// LOAD + GROUP
+// LOAD + SEARCH + GROUP
 async function loadData() {
     const res = await fetch("/data");
     const data = await res.json();
+
+    const search = document.getElementById("search").value.toLowerCase();
 
     const grouped = {};
 
@@ -251,7 +273,13 @@ async function loadData() {
     const table = document.getElementById("tableBody");
     table.innerHTML = "";
 
-    Object.keys(grouped).reverse().forEach(route => {
+    Object.keys(grouped)
+    .filter(route =>
+        route.toLowerCase().includes(search) ||
+        Object.values(grouped[route]).join("").toLowerCase().includes(search)
+    )
+    .reverse()
+    .forEach(route => {
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${route}</td>
@@ -264,21 +292,28 @@ async function loadData() {
     });
 }
 
-// RESET
+// MODAL
 function openModal() {
     document.getElementById("modal").style.display = "block";
 }
 
+function closeModal() {
+    document.getElementById("modal").style.display = "none";
+}
+
+// RESET
 function confirmReset() {
     if (document.getElementById("confirmText").value === "gugugaga") {
-        fetch("/reset", { method: "DELETE" }).then(loadData);
-        document.getElementById("modal").style.display = "none";
+        fetch("/reset", { method: "DELETE" }).then(() => {
+            closeModal();
+            loadData();
+        });
     } else {
         alert("Falsches Wort");
     }
 }
 
-// BACKUP
+// DOWNLOAD
 function downloadData() {
     fetch("/data")
     .then(res => res.json())
@@ -286,23 +321,34 @@ function downloadData() {
         const blob = new Blob([JSON.stringify(data, null, 2)]);
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = "backup.json";
+        a.download = "soullink-backup.json";
         a.click();
     });
 }
 
+// UPLOAD
 function uploadData(e) {
     const file = e.target.files[0];
+    if (!file) return;
+
     const reader = new FileReader();
 
     reader.onload = function(evt) {
-        const json = JSON.parse(evt.target.result);
+        try {
+            const json = JSON.parse(evt.target.result);
 
-        fetch("/import", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(json)
-        }).then(loadData);
+            fetch("/import", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(json)
+            }).then(() => {
+                alert("Backup geladen");
+                loadData();
+            });
+
+        } catch {
+            alert("Ungültige Datei");
+        }
     };
 
     reader.readAsText(file);
