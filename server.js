@@ -17,6 +17,10 @@ app.post("/add", (req, res) => {
     fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
     res.send({ success: true });
 });
+app.delete("/reset", (req, res) => {
+    fs.writeFileSync(dataFile, JSON.stringify([]));
+    res.send({ success: true });
+});
 
 app.get("/data", (req, res) => {
     const data = JSON.parse(fs.readFileSync(dataFile));
