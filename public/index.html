@@ -6,10 +6,9 @@
 
 <style>
 body {
-    font-family: Arial, sans-serif;
+    font-family: Arial;
     background: #f4f6f8;
     margin: 0;
-    padding: 0;
 }
 
 header {
@@ -18,7 +17,6 @@ header {
     padding: 20px;
     text-align: center;
     font-size: 24px;
-    font-weight: bold;
 }
 
 .container {
@@ -37,14 +35,16 @@ header {
 
 input {
     padding: 10px;
-    margin: 5px;
     border-radius: 10px;
     border: 1px solid #ddd;
-    width: calc(25% - 12px);
+    width: 100%;
 }
 
-#route {
-    width: calc(100% - 12px);
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
 }
 
 button {
@@ -63,6 +63,14 @@ button:hover {
     background: #a61c1c;
 }
 
+.reset-btn {
+    background: #333;
+}
+
+.reset-btn:hover {
+    background: black;
+}
+
 .search {
     width: 100%;
 }
@@ -70,14 +78,12 @@ button:hover {
 table {
     width: 100%;
     border-collapse: collapse;
-    margin-top: 10px;
 }
 
 th {
     background: #d62828;
     color: white;
     padding: 10px;
-    text-align: left;
 }
 
 td {
@@ -88,14 +94,30 @@ td {
 tr:hover {
     background: #f9f9f9;
 }
+
+/* Popup */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    width: 300px;
+    margin: 15% auto;
+    text-align: center;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-    SoulLink Tracker
-</header>
+<header>SoulLink Tracker</header>
 
 <div class="container">
 
@@ -103,7 +125,7 @@ tr:hover {
     <div class="card">
         <input id="route" placeholder="Route">
 
-        <div>
+        <div class="grid">
             <input id="janik" placeholder="Janik">
             <input id="tim" placeholder="Tim">
             <input id="nils" placeholder="Nils">
@@ -111,6 +133,7 @@ tr:hover {
         </div>
 
         <button onclick="send()">Speichern</button>
+        <button class="reset-btn" onclick="openModal()">Run löschen</button>
     </div>
 
     <!-- Suche -->
@@ -132,6 +155,15 @@ tr:hover {
         </table>
     </div>
 
+</div>
+
+<!-- Popup -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <p>Zum Löschen "gugugaga" eingeben:</p>
+        <input id="confirmText">
+        <button onclick="confirmReset()">Bestätigen</button>
+    </div>
 </div>
 
 <script>
@@ -178,15 +210,31 @@ async function loadData() {
     .reverse()
     .forEach(e => {
         const row = document.createElement("tr");
-
         row.innerHTML = `
             <td>${e.location}</td>
             <td>${e.player}</td>
             <td>${e.pokemonName}</td>
         `;
-
         table.appendChild(row);
     });
+}
+
+function openModal() {
+    document.getElementById("modal").style.display = "block";
+}
+
+function confirmReset() {
+    const text = document.getElementById("confirmText").value;
+
+    if (text === "gugugaga") {
+        fetch("/reset", { method: "DELETE" })
+        .then(() => {
+            document.getElementById("modal").style.display = "none";
+            loadData();
+        });
+    } else {
+        alert("Falsches Wort");
+    }
 }
 
 loadData();
