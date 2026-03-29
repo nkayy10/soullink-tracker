@@ -7,11 +7,10 @@
 <style>
 :root {
     --red: #e63946;
-    --red-dark: #c1121f;
     --bg: #0f172a;
     --card: #1e293b;
-    --text: #e5e7eb;
     --border: #334155;
+    --text: #e5e7eb;
 }
 
 body {
@@ -27,11 +26,9 @@ header {
     padding: 15px 20px;
     display: flex;
     justify-content: space-between;
-    align-items: center;
 }
 
 .title {
-    font-size: 18px;
     font-weight: 600;
 }
 
@@ -57,7 +54,6 @@ header {
     padding: 10px;
     border-radius: 10px;
     width: 200px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
 .menu:hover .menu-content {
@@ -71,7 +67,6 @@ header {
     padding: 20px;
 }
 
-/* CARD */
 .card {
     background: var(--card);
     padding: 20px;
@@ -80,12 +75,6 @@ header {
 }
 
 /* INPUT */
-.label {
-    font-size: 13px;
-    color: #94a3b8;
-    margin-bottom: 5px;
-}
-
 input {
     width: 100%;
     padding: 10px;
@@ -108,16 +97,11 @@ input {
     border-radius: 20px;
     border: none;
     cursor: pointer;
-    font-weight: 600;
 }
 
 .primary {
     background: var(--red);
     color: white;
-}
-
-.primary:hover {
-    background: var(--red-dark);
 }
 
 .secondary {
@@ -128,24 +112,12 @@ input {
 /* TABLE */
 table {
     width: 100%;
-    border-collapse: collapse;
 }
 
-th {
-    text-align: left;
+th, td {
     padding: 10px;
-    color: #94a3b8;
-    border-bottom: 1px solid var(--border);
-}
-
-td {
-    padding: 12px;
     border-bottom: 1px solid var(--border);
     text-align: center;
-}
-
-tr:hover {
-    background: #020617;
 }
 
 /* MODAL */
@@ -162,7 +134,6 @@ tr:hover {
     border-radius: 12px;
     width: 300px;
     margin: 15% auto;
-    text-align: center;
 }
 </style>
 </head>
@@ -172,11 +143,10 @@ tr:hover {
 <header>
     <div class="title">SoulLink Tracker</div>
 
-    <!-- Backup Menü -->
     <div class="menu">
         <button class="menu-btn">Backup</button>
         <div class="menu-content">
-            <button class="btn secondary" onclick="downloadData()">Download</button>
+            <button onclick="downloadData()">Download</button>
             <input type="file" onchange="uploadData(event)">
         </div>
     </div>
@@ -184,11 +154,8 @@ tr:hover {
 
 <div class="container">
 
-<!-- Eingabe -->
 <div class="card">
-
-    <div class="label">Route</div>
-    <input id="route">
+    <input id="route" placeholder="Route">
 
     <div class="grid">
         <input id="janik" placeholder="Janik">
@@ -199,15 +166,12 @@ tr:hover {
 
     <button class="btn primary" onclick="send()">Speichern</button>
     <button class="btn secondary" onclick="openModal()">Run löschen</button>
-
 </div>
 
-<!-- Suche -->
 <div class="card">
     <input id="search" placeholder="Suchen..." oninput="loadData()">
 </div>
 
-<!-- Tabelle -->
 <div class="card">
     <table>
         <thead>
@@ -230,13 +194,27 @@ tr:hover {
     <div class="modal-content">
         <p>"gugugaga" eingeben</p>
         <input id="confirmText">
-        <button class="btn primary" onclick="confirmReset()">Bestätigen</button>
-        <button class="btn secondary" onclick="closeModal()">Abbrechen</button>
+        <button onclick="confirmReset()">Bestätigen</button>
+        <button onclick="closeModal()">Abbrechen</button>
     </div>
 </div>
 
 <script>
-// SAVE + RESET INPUTS
+
+// 🔐 LOGIN
+let PASSWORD = "";
+
+function login() {
+    PASSWORD = prompt("Passwort eingeben:");
+
+    if (!PASSWORD) {
+        alert("Kein Zugriff");
+    }
+}
+
+login();
+
+// SEND
 function send() {
     const route = document.getElementById("route").value;
 
@@ -250,7 +228,10 @@ function send() {
     players.forEach(p => {
         fetch("/add", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "x-password": PASSWORD
+            },
             body: JSON.stringify({
                 location: route,
                 player: p.player,
@@ -259,7 +240,7 @@ function send() {
         });
     });
 
-    // 👉 INPUTS LEEREN
+    // reset inputs
     document.getElementById("route").value = "";
     document.getElementById("janik").value = "";
     document.getElementById("tim").value = "";
@@ -269,11 +250,13 @@ function send() {
     setTimeout(loadData, 200);
 }
 
-// LOAD + SEARCH
+// LOAD
 async function loadData() {
-    const res = await fetch("/data");
-    const data = await res.json();
+    const res = await fetch("/data", {
+        headers: { "x-password": PASSWORD }
+    });
 
+    const data = await res.json();
     const search = document.getElementById("search").value.toLowerCase();
 
     const grouped = {};
@@ -307,18 +290,21 @@ async function loadData() {
     });
 }
 
-// MODAL
+// RESET
 function openModal() {
     document.getElementById("modal").style.display = "block";
 }
+
 function closeModal() {
     document.getElementById("modal").style.display = "none";
 }
 
-// RESET
 function confirmReset() {
     if (document.getElementById("confirmText").value === "gugugaga") {
-        fetch("/reset", { method: "DELETE" }).then(() => {
+        fetch("/reset", {
+            method: "DELETE",
+            headers: { "x-password": PASSWORD }
+        }).then(() => {
             closeModal();
             loadData();
         });
@@ -329,7 +315,9 @@ function confirmReset() {
 
 // BACKUP
 function downloadData() {
-    fetch("/data")
+    fetch("/data", {
+        headers: { "x-password": PASSWORD }
+    })
     .then(res => res.json())
     .then(data => {
         const blob = new Blob([JSON.stringify(data, null, 2)]);
@@ -342,15 +330,17 @@ function downloadData() {
 
 function uploadData(e) {
     const file = e.target.files[0];
-    if (!file) return;
-
     const reader = new FileReader();
+
     reader.onload = function(evt) {
         const json = JSON.parse(evt.target.result);
 
         fetch("/import", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "x-password": PASSWORD
+            },
             body: JSON.stringify(json)
         }).then(loadData);
     };
