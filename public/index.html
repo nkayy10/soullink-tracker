@@ -5,18 +5,29 @@
 <title>SoulLink Tracker</title>
 
 <style>
+:root {
+    --red: #d62828;
+    --red-dark: #a61c1c;
+    --bg: #f6f7fb;
+    --card: #ffffff;
+    --text: #222;
+    --border: #e5e7eb;
+}
+
 body {
-    font-family: Arial;
-    background: #f4f6f8;
+    font-family: system-ui, Arial;
+    background: var(--bg);
     margin: 0;
+    color: var(--text);
 }
 
 header {
-    background: #d62828;
+    background: var(--red);
     color: white;
-    padding: 20px;
+    padding: 18px;
     text-align: center;
-    font-size: 24px;
+    font-size: 22px;
+    font-weight: 600;
 }
 
 .container {
@@ -26,11 +37,28 @@ header {
 }
 
 .card {
-    background: white;
+    background: var(--card);
+    border-radius: 16px;
     padding: 20px;
-    border-radius: 15px;
     margin-bottom: 20px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+}
+
+/* INPUT */
+.label {
+    font-size: 13px;
+    margin-bottom: 5px;
+    display: block;
+    color: #666;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    margin-bottom: 10px;
+    font-size: 14px;
 }
 
 .grid {
@@ -39,74 +67,70 @@ header {
     gap: 10px;
 }
 
-input {
+/* BUTTONS */
+.btn {
     padding: 10px;
-    border-radius: 10px;
-    border: 1px solid #ddd;
-    width: 100%;
-}
-
-button {
-    margin-top: 10px;
-    background: #d62828;
-    color: white;
+    border-radius: 20px;
     border: none;
-    padding: 12px;
-    border-radius: 25px;
-    width: 100%;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
+    margin-top: 10px;
 }
 
-button:hover {
-    background: #a61c1c;
+.primary {
+    background: var(--red);
+    color: white;
+}
+
+.primary:hover {
+    background: var(--red-dark);
 }
 
 .secondary {
-    background: #555;
+    background: #eee;
 }
 
 .secondary:hover {
-    background: #333;
+    background: #ddd;
 }
 
+/* TABLE */
 table {
     width: 100%;
     border-collapse: collapse;
 }
 
 th {
-    background: #d62828;
-    color: white;
+    text-align: left;
     padding: 10px;
+    font-size: 13px;
+    color: #666;
+    border-bottom: 2px solid var(--border);
 }
 
 td {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    text-align: center;
+    padding: 12px 10px;
+    border-bottom: 1px solid var(--border);
 }
 
 tr:hover {
-    background: #f9f9f9;
+    background: #fafafa;
 }
 
-/* Modal */
+/* MODAL */
 .modal {
     display: none;
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: rgba(0,0,0,0.5);
+    inset: 0;
+    background: rgba(0,0,0,0.4);
 }
 
 .modal-content {
     background: white;
     padding: 20px;
-    border-radius: 15px;
+    border-radius: 14px;
     width: 300px;
     margin: 15% auto;
-    text-align: center;
 }
 </style>
 </head>
@@ -119,22 +143,40 @@ tr:hover {
 
 <!-- Eingabe -->
 <div class="card">
-    <input id="route" placeholder="Route">
+
+    <label class="label">Route</label>
+    <input id="route" placeholder="z. B. Route 1">
 
     <div class="grid">
-        <input id="janik" placeholder="Janik">
-        <input id="tim" placeholder="Tim">
-        <input id="nils" placeholder="Nils">
-        <input id="niki" placeholder="Niki">
+        <div>
+            <label class="label">Janik</label>
+            <input id="janik">
+        </div>
+
+        <div>
+            <label class="label">Tim</label>
+            <input id="tim">
+        </div>
+
+        <div>
+            <label class="label">Nils</label>
+            <input id="nils">
+        </div>
+
+        <div>
+            <label class="label">Niki</label>
+            <input id="niki">
+        </div>
     </div>
 
-    <button onclick="send()">Speichern</button>
-    <button class="secondary" onclick="openModal()">Run löschen</button>
+    <button class="btn primary" onclick="send()">Speichern</button>
+    <button class="btn secondary" onclick="openModal()">Run löschen</button>
+
 </div>
 
 <!-- Backup -->
 <div class="card">
-    <button onclick="downloadData()">Backup herunterladen</button>
+    <button class="btn secondary" onclick="downloadData()">Backup herunterladen</button>
     <input type="file" onchange="uploadData(event)">
 </div>
 
@@ -161,11 +203,12 @@ tr:hover {
     <div class="modal-content">
         <p>"gugugaga" eingeben zum Löschen</p>
         <input id="confirmText">
-        <button onclick="confirmReset()">Bestätigen</button>
+        <button class="btn primary" onclick="confirmReset()">Bestätigen</button>
     </div>
 </div>
 
 <script>
+// SEND
 function send() {
     const route = document.getElementById("route").value;
 
@@ -191,7 +234,7 @@ function send() {
     setTimeout(loadData, 200);
 }
 
-// Gruppieren nach Route
+// LOAD + GROUP
 async function loadData() {
     const res = await fetch("/data");
     const data = await res.json();
@@ -200,14 +243,8 @@ async function loadData() {
 
     data.forEach(e => {
         if (!grouped[e.location]) {
-            grouped[e.location] = {
-                Janik: "",
-                Tim: "",
-                Nils: "",
-                Niki: ""
-            };
+            grouped[e.location] = { Janik: "", Tim: "", Nils: "", Niki: "" };
         }
-
         grouped[e.location][e.player] = e.pokemonName;
     });
 
@@ -216,7 +253,6 @@ async function loadData() {
 
     Object.keys(grouped).reverse().forEach(route => {
         const row = document.createElement("tr");
-
         row.innerHTML = `
             <td>${route}</td>
             <td>${grouped[route].Janik}</td>
@@ -224,54 +260,43 @@ async function loadData() {
             <td>${grouped[route].Nils}</td>
             <td>${grouped[route].Niki}</td>
         `;
-
         table.appendChild(row);
     });
 }
 
-// Reset
+// RESET
 function openModal() {
     document.getElementById("modal").style.display = "block";
 }
 
 function confirmReset() {
-    const text = document.getElementById("confirmText").value;
-
-    if (text === "gugugaga") {
-        fetch("/reset", { method: "DELETE" })
-        .then(() => {
-            document.getElementById("modal").style.display = "none";
-            loadData();
-        });
+    if (document.getElementById("confirmText").value === "gugugaga") {
+        fetch("/reset", { method: "DELETE" }).then(loadData);
+        document.getElementById("modal").style.display = "none";
     } else {
         alert("Falsches Wort");
     }
 }
 
-// Download
+// BACKUP
 function downloadData() {
     fetch("/data")
     .then(res => res.json())
     .then(data => {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-
+        const blob = new Blob([JSON.stringify(data, null, 2)]);
         const a = document.createElement("a");
-        a.href = url;
-        a.download = "soullink-backup.json";
+        a.href = URL.createObjectURL(blob);
+        a.download = "backup.json";
         a.click();
     });
 }
 
-// Upload
-function uploadData(event) {
-    const file = event.target.files[0];
-
-    if (!file) return;
-
+function uploadData(e) {
+    const file = e.target.files[0];
     const reader = new FileReader();
-    reader.onload = function(e) {
-        const json = JSON.parse(e.target.result);
+
+    reader.onload = function(evt) {
+        const json = JSON.parse(evt.target.result);
 
         fetch("/import", {
             method: "POST",
