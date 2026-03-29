@@ -19,7 +19,10 @@ app.post("/add", (req, res) => {
     fs.writeFileSync(dataFile, JSON.stringify(data, null, 2));
     res.send({ success: true });
 });
-
+app.get("/data", (req, res) => {
+    const data = JSON.parse(fs.readFileSync(dataFile));
+    res.json(data);
+});
 // PORT wichtig für Railway!
 const PORT = process.env.PORT || 3000;
 
