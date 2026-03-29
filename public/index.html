@@ -20,47 +20,34 @@ body {
     color: var(--text);
 }
 
-/* HEADER */
+/* LOGIN SCREEN */
+.login {
+    display: flex;
+    height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-box {
+    background: var(--card);
+    padding: 30px;
+    border-radius: 16px;
+    width: 300px;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+/* APP */
 header {
     background: #020617;
-    padding: 15px 20px;
+    padding: 15px;
     display: flex;
     justify-content: space-between;
 }
 
-.title {
-    font-weight: 600;
-}
-
-/* MENU */
-.menu {
-    position: relative;
-}
-
-.menu-btn {
-    background: var(--card);
-    border: none;
-    color: white;
-    padding: 8px 14px;
-    border-radius: 20px;
-    cursor: pointer;
-}
-
-.menu-content {
-    display: none;
-    position: absolute;
-    right: 0;
-    background: var(--card);
-    padding: 10px;
-    border-radius: 10px;
-    width: 200px;
-}
-
-.menu:hover .menu-content {
-    display: block;
-}
-
-/* LAYOUT */
 .container {
     max-width: 900px;
     margin: auto;
@@ -74,21 +61,20 @@ header {
     margin-bottom: 20px;
 }
 
-/* INPUT */
+/* INPUT FIX */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
 input {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border-radius: 10px;
     border: 1px solid var(--border);
     background: #020617;
     color: white;
-    margin-bottom: 10px;
-}
-
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
 }
 
 /* BUTTON */
@@ -97,6 +83,7 @@ input {
     border-radius: 20px;
     border: none;
     cursor: pointer;
+    margin-top: 10px;
 }
 
 .primary {
@@ -119,37 +106,26 @@ th, td {
     border-bottom: 1px solid var(--border);
     text-align: center;
 }
-
-/* MODAL */
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.6);
-}
-
-.modal-content {
-    background: var(--card);
-    padding: 20px;
-    border-radius: 12px;
-    width: 300px;
-    margin: 15% auto;
-}
 </style>
 </head>
 
 <body>
 
-<header>
-    <div class="title">SoulLink Tracker</div>
-
-    <div class="menu">
-        <button class="menu-btn">Backup</button>
-        <div class="menu-content">
-            <button onclick="downloadData()">Download</button>
-            <input type="file" onchange="uploadData(event)">
-        </div>
+<!-- LOGIN -->
+<div id="loginScreen" class="login">
+    <div class="login-box">
+        <h3>Login</h3>
+        <input id="passwordInput" type="password" placeholder="Passwort">
+        <button class="btn primary" onclick="login()">Einloggen</button>
+        <p id="error" style="color:red;"></p>
     </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+
+<header>
+    <div>SoulLink Tracker</div>
 </header>
 
 <div class="container">
@@ -165,7 +141,6 @@ th, td {
     </div>
 
     <button class="btn primary" onclick="send()">Speichern</button>
-    <button class="btn secondary" onclick="openModal()">Run löschen</button>
 </div>
 
 <div class="card">
@@ -188,31 +163,29 @@ th, td {
 </div>
 
 </div>
-
-<!-- Modal -->
-<div id="modal" class="modal">
-    <div class="modal-content">
-        <p>"gugugaga" eingeben</p>
-        <input id="confirmText">
-        <button onclick="confirmReset()">Bestätigen</button>
-        <button onclick="closeModal()">Abbrechen</button>
-    </div>
 </div>
 
 <script>
-
-// 🔐 LOGIN
 let PASSWORD = "";
 
+// LOGIN
 function login() {
-    PASSWORD = prompt("Passwort eingeben:");
+    const input = document.getElementById("passwordInput").value;
 
-    if (!PASSWORD) {
-        alert("Kein Zugriff");
-    }
+    fetch("/data", {
+        headers: { "x-password": input }
+    })
+    .then(res => {
+        if (res.status === 401) {
+            document.getElementById("error").innerText = "Falsches Passwort";
+        } else {
+            PASSWORD = input;
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("app").classList.remove("hidden");
+            loadData();
+        }
+    });
 }
-
-login();
 
 // SEND
 function send() {
@@ -240,12 +213,8 @@ function send() {
         });
     });
 
-    // reset inputs
-    document.getElementById("route").value = "";
-    document.getElementById("janik").value = "";
-    document.getElementById("tim").value = "";
-    document.getElementById("nils").value = "";
-    document.getElementById("niki").value = "";
+    // reset
+    document.querySelectorAll("input").forEach(i => i.value = "");
 
     setTimeout(loadData, 200);
 }
@@ -257,7 +226,6 @@ async function loadData() {
     });
 
     const data = await res.json();
-    const search = document.getElementById("search").value.toLowerCase();
 
     const grouped = {};
 
@@ -271,13 +239,7 @@ async function loadData() {
     const table = document.getElementById("tableBody");
     table.innerHTML = "";
 
-    Object.keys(grouped)
-    .filter(route =>
-        route.toLowerCase().includes(search) ||
-        Object.values(grouped[route]).join("").toLowerCase().includes(search)
-    )
-    .reverse()
-    .forEach(route => {
+    Object.keys(grouped).forEach(route => {
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${route}</td>
@@ -289,66 +251,6 @@ async function loadData() {
         table.appendChild(row);
     });
 }
-
-// RESET
-function openModal() {
-    document.getElementById("modal").style.display = "block";
-}
-
-function closeModal() {
-    document.getElementById("modal").style.display = "none";
-}
-
-function confirmReset() {
-    if (document.getElementById("confirmText").value === "gugugaga") {
-        fetch("/reset", {
-            method: "DELETE",
-            headers: { "x-password": PASSWORD }
-        }).then(() => {
-            closeModal();
-            loadData();
-        });
-    } else {
-        alert("Falsch");
-    }
-}
-
-// BACKUP
-function downloadData() {
-    fetch("/data", {
-        headers: { "x-password": PASSWORD }
-    })
-    .then(res => res.json())
-    .then(data => {
-        const blob = new Blob([JSON.stringify(data, null, 2)]);
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = "backup.json";
-        a.click();
-    });
-}
-
-function uploadData(e) {
-    const file = e.target.files[0];
-    const reader = new FileReader();
-
-    reader.onload = function(evt) {
-        const json = JSON.parse(evt.target.result);
-
-        fetch("/import", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-password": PASSWORD
-            },
-            body: JSON.stringify(json)
-        }).then(loadData);
-    };
-
-    reader.readAsText(file);
-}
-
-loadData();
 </script>
 
 </body>
