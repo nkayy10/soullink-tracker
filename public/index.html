@@ -33,6 +33,12 @@ header {
     box-shadow: 0 5px 20px rgba(0,0,0,0.08);
 }
 
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
 input {
     padding: 10px;
     border-radius: 10px;
@@ -40,11 +46,8 @@ input {
     width: 100%;
 }
 
-.grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 10px;
+#route {
+    margin-bottom: 10px;
 }
 
 button {
@@ -69,10 +72,6 @@ button:hover {
 
 .reset-btn:hover {
     background: black;
-}
-
-.search {
-    width: 100%;
 }
 
 table {
@@ -121,46 +120,43 @@ tr:hover {
 
 <div class="container">
 
-    <!-- Eingabe -->
-    <div class="card">
-        <input id="route" placeholder="Route">
+<div class="card">
+    <input id="route" placeholder="Route">
 
-        <div class="grid">
-            <input id="janik" placeholder="Janik">
-            <input id="tim" placeholder="Tim">
-            <input id="nils" placeholder="Nils">
-            <input id="niki" placeholder="Niki">
-        </div>
-
-        <button onclick="send()">Speichern</button>
-        <button class="reset-btn" onclick="openModal()">Run löschen</button>
+    <div class="grid">
+        <input id="janik" placeholder="Janik">
+        <input id="tim" placeholder="Tim">
+        <input id="nils" placeholder="Nils">
+        <input id="niki" placeholder="Niki">
     </div>
 
-    <!-- Suche -->
-    <div class="card">
-        <input id="search" class="search" placeholder="Suchen..." oninput="loadData()">
-    </div>
+    <button onclick="send()">Speichern</button>
+    <button class="reset-btn" onclick="openModal()">Run löschen</button>
+</div>
 
-    <!-- Tabelle -->
-    <div class="card">
-        <table>
-            <thead>
-                <tr>
-                    <th>Route</th>
-                    <th>Spieler</th>
-                    <th>Pokémon</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody"></tbody>
-        </table>
-    </div>
+<div class="card">
+    <input id="search" placeholder="Suchen..." oninput="loadData()">
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>Route</th>
+                <th>Spieler</th>
+                <th>Pokémon</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
 
 </div>
 
 <!-- Popup -->
 <div id="modal" class="modal">
     <div class="modal-content">
-        <p>Zum Löschen "gugugaga" eingeben:</p>
+        <p>"gugugaga" eingeben zum Löschen</p>
         <input id="confirmText">
         <button onclick="confirmReset()">Bestätigen</button>
     </div>
@@ -228,9 +224,12 @@ function confirmReset() {
 
     if (text === "gugugaga") {
         fetch("/reset", { method: "DELETE" })
-        .then(() => {
-            document.getElementById("modal").style.display = "none";
-            loadData();
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById("modal").style.display = "none";
+                loadData();
+            }
         });
     } else {
         alert("Falsches Wort");
