@@ -20,7 +20,7 @@ header {
 }
 
 .container {
-    max-width: 900px;
+    max-width: 1000px;
     margin: auto;
     padding: 20px;
 }
@@ -46,10 +46,6 @@ input {
     width: 100%;
 }
 
-#route {
-    margin-bottom: 10px;
-}
-
 button {
     margin-top: 10px;
     background: #d62828;
@@ -66,12 +62,12 @@ button:hover {
     background: #a61c1c;
 }
 
-.reset-btn {
-    background: #333;
+.secondary {
+    background: #555;
 }
 
-.reset-btn:hover {
-    background: black;
+.secondary:hover {
+    background: #333;
 }
 
 table {
@@ -88,13 +84,14 @@ th {
 td {
     padding: 10px;
     border-bottom: 1px solid #eee;
+    text-align: center;
 }
 
 tr:hover {
     background: #f9f9f9;
 }
 
-/* Popup */
+/* Modal */
 .modal {
     display: none;
     position: fixed;
@@ -120,6 +117,7 @@ tr:hover {
 
 <div class="container">
 
+<!-- Eingabe -->
 <div class="card">
     <input id="route" placeholder="Route">
 
@@ -131,20 +129,25 @@ tr:hover {
     </div>
 
     <button onclick="send()">Speichern</button>
-    <button class="reset-btn" onclick="openModal()">Run löschen</button>
+    <button class="secondary" onclick="openModal()">Run löschen</button>
 </div>
 
+<!-- Backup -->
 <div class="card">
-    <input id="search" placeholder="Suchen..." oninput="loadData()">
+    <button onclick="downloadData()">Backup herunterladen</button>
+    <input type="file" onchange="uploadData(event)">
 </div>
 
+<!-- Tabelle -->
 <div class="card">
     <table>
         <thead>
             <tr>
                 <th>Route</th>
-                <th>Spieler</th>
-                <th>Pokémon</th>
+                <th>Janik</th>
+                <th>Tim</th>
+                <th>Nils</th>
+                <th>Niki</th>
             </tr>
         </thead>
         <tbody id="tableBody"></tbody>
@@ -153,7 +156,7 @@ tr:hover {
 
 </div>
 
-<!-- Popup -->
+<!-- Modal -->
 <div id="modal" class="modal">
     <div class="modal-content">
         <p>"gugugaga" eingeben zum Löschen</p>
@@ -185,36 +188,48 @@ function send() {
         });
     });
 
-    setTimeout(loadData, 300);
+    setTimeout(loadData, 200);
 }
 
+// Gruppieren nach Route
 async function loadData() {
     const res = await fetch("/data");
     const data = await res.json();
 
-    const search = document.getElementById("search").value.toLowerCase();
+    const grouped = {};
+
+    data.forEach(e => {
+        if (!grouped[e.location]) {
+            grouped[e.location] = {
+                Janik: "",
+                Tim: "",
+                Nils: "",
+                Niki: ""
+            };
+        }
+
+        grouped[e.location][e.player] = e.pokemonName;
+    });
 
     const table = document.getElementById("tableBody");
     table.innerHTML = "";
 
-    data
-    .filter(e =>
-        e.location.toLowerCase().includes(search) ||
-        e.player.toLowerCase().includes(search) ||
-        e.pokemonName.toLowerCase().includes(search)
-    )
-    .reverse()
-    .forEach(e => {
+    Object.keys(grouped).reverse().forEach(route => {
         const row = document.createElement("tr");
+
         row.innerHTML = `
-            <td>${e.location}</td>
-            <td>${e.player}</td>
-            <td>${e.pokemonName}</td>
+            <td>${route}</td>
+            <td>${grouped[route].Janik}</td>
+            <td>${grouped[route].Tim}</td>
+            <td>${grouped[route].Nils}</td>
+            <td>${grouped[route].Niki}</td>
         `;
+
         table.appendChild(row);
     });
 }
 
+// Reset
 function openModal() {
     document.getElementById("modal").style.display = "block";
 }
@@ -224,16 +239,48 @@ function confirmReset() {
 
     if (text === "gugugaga") {
         fetch("/reset", { method: "DELETE" })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                document.getElementById("modal").style.display = "none";
-                loadData();
-            }
+        .then(() => {
+            document.getElementById("modal").style.display = "none";
+            loadData();
         });
     } else {
         alert("Falsches Wort");
     }
+}
+
+// Download
+function downloadData() {
+    fetch("/data")
+    .then(res => res.json())
+    .then(data => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "soullink-backup.json";
+        a.click();
+    });
+}
+
+// Upload
+function uploadData(event) {
+    const file = event.target.files[0];
+
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const json = JSON.parse(e.target.result);
+
+        fetch("/import", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(json)
+        }).then(loadData);
+    };
+
+    reader.readAsText(file);
 }
 
 loadData();
