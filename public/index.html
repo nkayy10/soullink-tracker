@@ -2,38 +2,69 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SoulLink Tracker</title>
 
 <style>
 :root {
     --red: #e63946;
+    --red-dark: #c1121f;
     --bg: #0f172a;
+    --bg-soft: #111827;
     --card: #1e293b;
+    --card-2: #243247;
     --border: #334155;
     --text: #e5e7eb;
+    --muted: #94a3b8;
+    --white: #ffffff;
+    --shadow: 0 14px 34px rgba(0,0,0,0.28);
+}
+
+* {
+    box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    font-family: system-ui;
-    background: var(--bg);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+        radial-gradient(circle at top left, rgba(230,57,70,0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(255,255,255,0.04), transparent 18%),
+        linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
     color: var(--text);
+    min-height: 100vh;
 }
 
-/* LOGIN SCREEN */
+/* LOGIN */
 .login {
+    min-height: 100vh;
     display: flex;
-    height: 100vh;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
+    padding: 24px;
 }
 
 .login-box {
-    background: var(--card);
-    padding: 30px;
-    border-radius: 16px;
-    width: 300px;
-    text-align: center;
+    width: 100%;
+    max-width: 380px;
+    background: rgba(30, 41, 59, 0.95);
+    border: 1px solid rgba(255,255,255,0.06);
+    backdrop-filter: blur(10px);
+    border-radius: 22px;
+    padding: 28px;
+    box-shadow: var(--shadow);
+}
+
+.login-title {
+    font-size: 28px;
+    font-weight: 800;
+    margin: 0 0 8px 0;
+}
+
+.login-subtitle {
+    color: var(--muted);
+    margin: 0 0 18px 0;
+    font-size: 14px;
 }
 
 .hidden {
@@ -42,52 +73,188 @@ body {
 
 /* APP */
 header {
-    background: #020617;
-    padding: 15px;
-    display: flex;
-    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: rgba(2, 6, 23, 0.82);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
+.header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 16px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.brand-title {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+}
+
+.brand-subtitle {
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* MENU */
+.menu {
+    position: relative;
+}
+
+.menu-btn {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.06);
+    color: var(--white);
+    padding: 10px 14px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: 0.2s ease;
+}
+
+.menu-btn:hover {
+    background: var(--card-2);
+}
+
+.menu-content {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 10px);
+    width: 240px;
+    background: #162033;
+    border: 1px solid rgba(255,255,255,0.06);
+    padding: 12px;
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+}
+
+.menu.open .menu-content {
+    display: block;
+}
+
+/* LAYOUT */
 .container {
-    max-width: 900px;
-    margin: auto;
-    padding: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 24px 20px 36px;
+}
+
+.layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 20px;
+    align-items: start;
 }
 
 .card {
-    background: var(--card);
+    background: rgba(30, 41, 59, 0.92);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 22px;
     padding: 20px;
-    border-radius: 16px;
-    margin-bottom: 20px;
+    box-shadow: var(--shadow);
 }
 
-/* INPUT FIX */
+.card-title {
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0 0 4px 0;
+}
+
+.card-subtitle {
+    margin: 0 0 18px 0;
+    color: var(--muted);
+    font-size: 13px;
+}
+
+/* FORM */
+.form-row {
+    margin-bottom: 14px;
+}
+
+.label {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 7px;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="password"],
+input[type="file"] {
+    width: 100%;
+    min-width: 0;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: #0b1220;
+    color: var(--white);
+    outline: none;
+    font-size: 14px;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+input[type="text"]:focus,
+input[type="password"]:focus,
+input[type="file"]:focus {
+    border-color: rgba(230,57,70,0.8);
+    box-shadow: 0 0 0 4px rgba(230,57,70,0.14);
+}
+
 .grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 12px;
+    margin-top: 8px;
 }
 
-input {
-    width: 100%;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: #020617;
-    color: white;
-}
-
-/* BUTTON */
+/* BUTTONS */
 .btn {
-    padding: 10px;
-    border-radius: 20px;
     border: none;
     cursor: pointer;
-    margin-top: 10px;
+    border-radius: 999px;
+    padding: 12px 16px;
+    font-weight: 800;
+    font-size: 14px;
+    transition: transform 0.12s ease, opacity 0.12s ease, background 0.2s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
 }
 
 .primary {
-    background: var(--red);
+    background: linear-gradient(180deg, var(--red) 0%, var(--red-dark) 100%);
     color: white;
 }
 
@@ -96,127 +263,394 @@ input {
     color: white;
 }
 
-/* TABLE */
-table {
-    width: 100%;
+.ghost {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
 }
 
-th, td {
-    padding: 10px;
+.danger {
+    background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+    color: white;
+}
+
+/* SEARCH + TABLE */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.search-wrap {
+    flex: 1;
+    min-width: 260px;
+}
+
+.table-wrap {
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(11, 18, 32, 0.55);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+}
+
+th {
+    text-align: left;
+    padding: 14px 14px;
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    background: rgba(255,255,255,0.02);
     border-bottom: 1px solid var(--border);
+}
+
+td {
+    padding: 16px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    text-align: left;
+    vertical-align: middle;
+}
+
+tr:hover td {
+    background: rgba(255,255,255,0.02);
+}
+
+.route-cell {
+    font-weight: 800;
+    color: white;
+}
+
+.poke-cell {
+    color: #f8fafc;
+}
+
+.empty-state {
     text-align: center;
+    color: var(--muted);
+    padding: 28px 12px;
+    font-size: 14px;
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(2, 6, 23, 0.72);
+    backdrop-filter: blur(4px);
+    padding: 18px;
+    z-index: 100;
+}
+
+.modal.show {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    width: 100%;
+    max-width: 420px;
+    background: #162033;
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 22px;
+    border-radius: 22px;
+    box-shadow: var(--shadow);
+}
+
+.modal-title {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.modal-text {
+    margin: 0 0 16px 0;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.message {
+    margin-top: 10px;
+    font-size: 13px;
+    min-height: 18px;
+    color: var(--muted);
+}
+
+.error {
+    color: #f87171;
+}
+
+.success {
+    color: #4ade80;
+}
+
+@media (max-width: 900px) {
+    .layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .grid,
+    .actions,
+    .modal-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .header-inner {
+        align-items: flex-start;
+    }
+
+    .header-actions {
+        width: 100%;
+    }
 }
 </style>
 </head>
-
 <body>
 
 <!-- LOGIN -->
 <div id="loginScreen" class="login">
     <div class="login-box">
-        <h3>Login</h3>
-        <input id="passwordInput" type="password" placeholder="Passwort">
-        <button class="btn primary" onclick="login()">Einloggen</button>
-        <p id="error" style="color:red;"></p>
+        <h1 class="login-title">SoulLink Tracker</h1>
+        <p class="login-subtitle">Bitte Passwort eingeben, um auf den Run zuzugreifen.</p>
+
+        <div class="form-row">
+            <input id="passwordInput" type="password" placeholder="Passwort">
+        </div>
+
+        <button class="btn primary" style="width:100%;" onclick="login()">Einloggen</button>
+        <div id="loginError" class="message error"></div>
     </div>
 </div>
 
 <!-- APP -->
 <div id="app" class="hidden">
+    <header>
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-title">SoulLink Tracker</div>
+                <div class="brand-subtitle">Run-Verwaltung für eure Encounters</div>
+            </div>
 
-<header>
-    <div>SoulLink Tracker</div>
-</header>
+            <div class="header-actions">
+                <div class="menu" id="backupMenu">
+                    <button class="menu-btn" onclick="toggleBackupMenu(event)">Backup</button>
+                    <div class="menu-content">
+                        <button class="btn secondary" style="width:100%; margin-bottom:10px;" onclick="downloadData()">Backup herunterladen</button>
+                        <input type="file" id="backupFileInput" accept=".json,application/json" onchange="uploadData(event)">
+                        <div id="backupMessage" class="message"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
 
-<div class="container">
+    <div class="container">
+        <div class="layout">
+            <div>
+                <div class="card">
+                    <h2 class="card-title">Eintrag hinzufügen</h2>
+                    <p class="card-subtitle">Eine Route mit allen vier Pokémon erfassen.</p>
 
-<div class="card">
-    <input id="route" placeholder="Route">
+                    <div class="form-row">
+                        <label class="label" for="route">Route</label>
+                        <input id="route" type="text" placeholder="z. B. Route 1">
+                    </div>
 
-    <div class="grid">
-        <input id="janik" placeholder="Janik">
-        <input id="tim" placeholder="Tim">
-        <input id="nils" placeholder="Nils">
-        <input id="niki" placeholder="Niki">
+                    <div class="grid">
+                        <div class="form-row">
+                            <label class="label" for="janik">Janik</label>
+                            <input id="janik" type="text" placeholder="Pokémon">
+                        </div>
+
+                        <div class="form-row">
+                            <label class="label" for="tim">Tim</label>
+                            <input id="tim" type="text" placeholder="Pokémon">
+                        </div>
+
+                        <div class="form-row">
+                            <label class="label" for="nils">Nils</label>
+                            <input id="nils" type="text" placeholder="Pokémon">
+                        </div>
+
+                        <div class="form-row">
+                            <label class="label" for="niki">Niki</label>
+                            <input id="niki" type="text" placeholder="Pokémon">
+                        </div>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn primary" onclick="send()">Speichern</button>
+                        <button class="btn danger" onclick="openModal()">Clear Run</button>
+                    </div>
+
+                    <div id="formMessage" class="message"></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="card">
+                    <div class="topbar">
+                        <div>
+                            <h2 class="card-title" style="margin-bottom:2px;">Aktueller Run</h2>
+                            <p class="card-subtitle" style="margin:0;">Eine Zeile pro Route.</p>
+                        </div>
+
+                        <div class="search-wrap">
+                            <input id="search" type="text" placeholder="Suche nach Route oder Pokémon..." oninput="renderTable()">
+                        </div>
+                    </div>
+
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Route</th>
+                                    <th>Janik</th>
+                                    <th>Tim</th>
+                                    <th>Nils</th>
+                                    <th>Niki</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <button class="btn primary" onclick="send()">Speichern</button>
 </div>
 
-<div class="card">
-    <input id="search" placeholder="Suchen..." oninput="loadData()">
-</div>
+<!-- CLEAR MODAL -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <h3 class="modal-title">Run wirklich löschen?</h3>
+        <p class="modal-text">Gib zur Bestätigung <strong>gugugaga</strong> ein. Erst dann wird der komplette aktuelle Run gelöscht.</p>
 
-<div class="card">
-    <table>
-        <thead>
-            <tr>
-                <th>Route</th>
-                <th>Janik</th>
-                <th>Tim</th>
-                <th>Nils</th>
-                <th>Niki</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
-</div>
+        <input id="confirmText" type="text" placeholder='gugugaga eingeben'>
 
-</div>
+        <div id="resetMessage" class="message"></div>
+
+        <div class="modal-actions">
+            <button class="btn danger" onclick="confirmReset()">Bestätigen</button>
+            <button class="btn ghost" onclick="closeModal()">Abbrechen</button>
+        </div>
+    </div>
 </div>
 
 <script>
 let PASSWORD = "";
+let rawData = [];
 
 // LOGIN
-function login() {
+async function login() {
     const input = document.getElementById("passwordInput").value;
+    const errorEl = document.getElementById("loginError");
+    errorEl.textContent = "";
 
-    fetch("/data", {
-        headers: { "x-password": input }
-    })
-    .then(res => {
+    try {
+        const res = await fetch("/data", {
+            headers: { "x-password": input }
+        });
+
         if (res.status === 401) {
-            document.getElementById("error").innerText = "Falsches Passwort";
-        } else {
-            PASSWORD = input;
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("app").classList.remove("hidden");
-            loadData();
+            errorEl.textContent = "Falsches Passwort";
+            return;
         }
-    });
+
+        if (!res.ok) {
+            errorEl.textContent = "Login fehlgeschlagen";
+            return;
+        }
+
+        PASSWORD = input;
+        document.getElementById("loginScreen").classList.add("hidden");
+        document.getElementById("app").classList.remove("hidden");
+        await loadData();
+    } catch (e) {
+        errorEl.textContent = "Server nicht erreichbar";
+    }
 }
 
-// SEND
-function send() {
-    const route = document.getElementById("route").value;
+document.getElementById("passwordInput").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") login();
+});
+
+// SAVE
+async function send() {
+    const route = document.getElementById("route").value.trim();
+    const janik = document.getElementById("janik").value.trim();
+    const tim = document.getElementById("tim").value.trim();
+    const nils = document.getElementById("nils").value.trim();
+    const niki = document.getElementById("niki").value.trim();
+    const message = document.getElementById("formMessage");
+
+    message.textContent = "";
+    message.className = "message";
+
+    if (!route) {
+        message.textContent = "Bitte zuerst eine Route eingeben.";
+        message.classList.add("error");
+        return;
+    }
 
     const players = [
-        { player: "Janik", pokemonName: document.getElementById("janik").value },
-        { player: "Tim", pokemonName: document.getElementById("tim").value },
-        { player: "Nils", pokemonName: document.getElementById("nils").value },
-        { player: "Niki", pokemonName: document.getElementById("niki").value }
+        { player: "Janik", pokemonName: janik },
+        { player: "Tim", pokemonName: tim },
+        { player: "Nils", pokemonName: nils },
+        { player: "Niki", pokemonName: niki }
     ];
 
-    players.forEach(p => {
-        fetch("/add", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "x-password": PASSWORD
-            },
-            body: JSON.stringify({
-                location: route,
-                player: p.player,
-                pokemonName: p.pokemonName
+    try {
+        await Promise.all(players.map(p =>
+            fetch("/add", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-password": PASSWORD
+                },
+                body: JSON.stringify({
+                    location: route,
+                    player: p.player,
+                    pokemonName: p.pokemonName
+                })
             })
-        });
-    });
+        ));
 
-    // reset
-    document.querySelectorAll("input").forEach(i => i.value = "");
+        document.getElementById("route").value = "";
+        document.getElementById("janik").value = "";
+        document.getElementById("tim").value = "";
+        document.getElementById("nils").value = "";
+        document.getElementById("niki").value = "";
 
-    setTimeout(loadData, 200);
+        message.textContent = "Eintrag gespeichert.";
+        message.classList.add("success");
+
+        await loadData();
+        document.getElementById("route").focus();
+    } catch (e) {
+        message.textContent = "Speichern fehlgeschlagen.";
+        message.classList.add("error");
+    }
 }
 
 // LOAD
@@ -225,32 +659,216 @@ async function loadData() {
         headers: { "x-password": PASSWORD }
     });
 
-    const data = await res.json();
+    if (res.status === 401) {
+        document.getElementById("app").classList.add("hidden");
+        document.getElementById("loginScreen").classList.remove("hidden");
+        document.getElementById("loginError").textContent = "Session ungültig. Bitte erneut einloggen.";
+        return;
+    }
+
+    rawData = await res.json();
+    renderTable();
+}
+
+// SEARCH + RENDER
+function renderTable() {
+    const searchValue = (document.getElementById("search")?.value || "").trim().toLowerCase();
 
     const grouped = {};
 
-    data.forEach(e => {
+    rawData.forEach(e => {
         if (!grouped[e.location]) {
-            grouped[e.location] = { Janik: "", Tim: "", Nils: "", Niki: "" };
+            grouped[e.location] = {
+                Janik: "",
+                Tim: "",
+                Nils: "",
+                Niki: ""
+            };
         }
-        grouped[e.location][e.player] = e.pokemonName;
+        grouped[e.location][e.player] = e.pokemonName || "";
+    });
+
+    const routes = Object.keys(grouped).filter(route => {
+        const row = grouped[route];
+        const combined = [
+            route,
+            row.Janik,
+            row.Tim,
+            row.Nils,
+            row.Niki
+        ].join(" ").toLowerCase();
+
+        return combined.includes(searchValue);
     });
 
     const table = document.getElementById("tableBody");
     table.innerHTML = "";
 
-    Object.keys(grouped).forEach(route => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${route}</td>
-            <td>${grouped[route].Janik}</td>
-            <td>${grouped[route].Tim}</td>
-            <td>${grouped[route].Nils}</td>
-            <td>${grouped[route].Niki}</td>
+    if (routes.length === 0) {
+        table.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-state">Keine Einträge gefunden.</td>
+            </tr>
         `;
-        table.appendChild(row);
+        return;
+    }
+
+    routes.reverse().forEach(route => {
+        const row = grouped[route];
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td class="route-cell">${escapeHtml(route)}</td>
+            <td class="poke-cell">${escapeHtml(row.Janik)}</td>
+            <td class="poke-cell">${escapeHtml(row.Tim)}</td>
+            <td class="poke-cell">${escapeHtml(row.Nils)}</td>
+            <td class="poke-cell">${escapeHtml(row.Niki)}</td>
+        `;
+        table.appendChild(tr);
     });
 }
+
+// RESET MODAL
+function openModal() {
+    document.getElementById("modal").classList.add("show");
+    document.getElementById("confirmText").value = "";
+    document.getElementById("resetMessage").textContent = "";
+    document.getElementById("resetMessage").className = "message";
+    setTimeout(() => document.getElementById("confirmText").focus(), 50);
+}
+
+function closeModal() {
+    document.getElementById("modal").classList.remove("show");
+}
+
+// CLEAR RUN
+async function confirmReset() {
+    const text = document.getElementById("confirmText").value.trim();
+    const msg = document.getElementById("resetMessage");
+    msg.textContent = "";
+    msg.className = "message";
+
+    if (text !== "gugugaga") {
+        msg.textContent = 'Zum Löschen musst du genau "gugugaga" eingeben.';
+        msg.classList.add("error");
+        return;
+    }
+
+    try {
+        const res = await fetch("/reset", {
+            method: "DELETE",
+            headers: { "x-password": PASSWORD }
+        });
+
+        if (!res.ok) {
+            msg.textContent = "Löschen fehlgeschlagen.";
+            msg.classList.add("error");
+            return;
+        }
+
+        closeModal();
+        await loadData();
+    } catch (e) {
+        msg.textContent = "Löschen fehlgeschlagen.";
+        msg.classList.add("error");
+    }
+}
+
+// BACKUP MENU
+function toggleBackupMenu(event) {
+    event.stopPropagation();
+    const menu = document.getElementById("backupMenu");
+    menu.classList.toggle("open");
+}
+
+document.addEventListener("click", function() {
+    document.getElementById("backupMenu")?.classList.remove("open");
+});
+
+// DOWNLOAD
+function downloadData() {
+    const message = document.getElementById("backupMessage");
+    message.textContent = "";
+    message.className = "message";
+
+    fetch("/data", {
+        headers: { "x-password": PASSWORD }
+    })
+    .then(res => res.json())
+    .then(data => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "soullink-backup.json";
+        a.click();
+        message.textContent = "Backup heruntergeladen.";
+        message.classList.add("success");
+    })
+    .catch(() => {
+        message.textContent = "Backup konnte nicht erstellt werden.";
+        message.classList.add("error");
+    });
+}
+
+// UPLOAD
+function uploadData(e) {
+    const file = e.target.files[0];
+    const message = document.getElementById("backupMessage");
+    message.textContent = "";
+    message.className = "message";
+
+    if (!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(evt) {
+        try {
+            const json = JSON.parse(evt.target.result);
+
+            fetch("/import", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "x-password": PASSWORD
+                },
+                body: JSON.stringify(json)
+            })
+            .then(res => {
+                if (!res.ok) throw new Error();
+                return loadData();
+            })
+            .then(() => {
+                message.textContent = "Backup geladen.";
+                message.classList.add("success");
+                document.getElementById("backupFileInput").value = "";
+            })
+            .catch(() => {
+                message.textContent = "Backup konnte nicht geladen werden.";
+                message.classList.add("error");
+            });
+
+        } catch {
+            message.textContent = "Ungültige JSON-Datei.";
+            message.classList.add("error");
+        }
+    };
+
+    reader.readAsText(file);
+}
+
+// ESCAPE
+function escapeHtml(value) {
+    return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+// MODAL CLOSE ON BACKGROUND
+document.getElementById("modal").addEventListener("click", function(e) {
+    if (e.target.id === "modal") closeModal();
+});
 </script>
 
 </body>
