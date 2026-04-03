@@ -393,7 +393,12 @@ tr:hover td {
     min-height: 18px;
     color: var(--muted);
 }
-
+    
+.ranking-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
 .error {
     color: #f87171;
 }
@@ -465,6 +470,10 @@ tr:hover td {
     </header>
 
     <div class="container">
+        <div class="card">
+            <h2 class="card-title">Blame Ranking</h2>
+            <div id="ranking"></div>
+        </div>
         <div class="layout">
             <div>
                 <div class="card">
@@ -524,6 +533,7 @@ tr:hover td {
                         <table>
                             <thead>
                                 <tr>
+                                    <th>Status</th>
                                     <th>Route</th>
                                     <th>Janik</th>
                                     <th>Tim</th>
@@ -542,6 +552,21 @@ tr:hover td {
 
 <!-- CLEAR MODAL -->
 <div id="modal" class="modal">
+    <div id="killModal" class="modal">
+        <div class="modal-content">
+            <h3>Wer hat geblowt?</h3>
+    
+            <select id="killer" style="width:100%; margin-bottom:10px;">
+                <option>Janik</option>
+                <option>Tim</option>
+                <option>Nils</option>
+                <option>Niki</option>
+            </select>
+    
+            <button class="btn danger" onclick="confirmKill()">Bestätigen</button>
+            <button class="btn ghost" onclick="closeKillModal()">Abbrechen</button>
+        </div>
+    </div>    
     <div class="modal-content">
         <h3 class="modal-title">Run wirklich löschen?</h3>
         <p class="modal-text">Gib zur Bestätigung <strong>gugugaga</strong> ein. Erst dann wird der komplette aktuelle Run gelöscht.</p>
@@ -674,7 +699,7 @@ async function loadData() {
 function renderTable() {
     const searchValue = (document.getElementById("search")?.value || "").trim().toLowerCase();
 
-    const grouped = {};
+   const grouped = {};
 
     rawData.forEach(e => {
         if (!grouped[e.location]) {
@@ -682,10 +707,18 @@ function renderTable() {
                 Janik: "",
                 Tim: "",
                 Nils: "",
-                Niki: ""
+                Niki: "",
+                dead: false,
+                cause: null
             };
         }
+
         grouped[e.location][e.player] = e.pokemonName || "";
+
+        if (e.dead) {
+            grouped[e.location].dead = true;
+            grouped[e.location].cause = e.cause;
+        }
     });
 
     const routes = Object.keys(grouped).filter(route => {
@@ -716,14 +749,39 @@ function renderTable() {
     routes.reverse().forEach(route => {
         const row = grouped[route];
         const tr = document.createElement("tr");
+
+        if (row.dead) tr.classList.add("dead");
+        
         tr.innerHTML = `
-            <td class="route-cell">${escapeHtml(route)}</td>
-            <td class="poke-cell">${escapeHtml(row.Janik)}</td>
-            <td class="poke-cell">${escapeHtml(row.Tim)}</td>
-            <td class="poke-cell">${escapeHtml(row.Nils)}</td>
-            <td class="poke-cell">${escapeHtml(row.Niki)}</td>
+        <td onclick="openKillModal('${route}')">
+            ${row.dead ? "💀" : "🟢"}
+        </td>
+        <td class="route-cell">${escapeHtml(route)}</td>
+        <td>${escapeHtml(row.Janik)}</td>
+        <td>${escapeHtml(row.Tim)}</td>
+        <td>${escapeHtml(row.Nils)}</td>
+        <td>${escapeHtml(row.Niki)}</td>
         `;
         table.appendChild(tr);
+    });
+    const ranking = { Janik: 0, Tim: 0, Nils: 0, Niki: 0 };
+
+    Object.values(grouped).forEach(r => {
+        if (r.dead && r.cause) {
+            ranking[r.cause]++;
+        }
+    });
+    
+    const rankingDiv = document.getElementById("ranking");
+    rankingDiv.innerHTML = "";
+    
+    Object.entries(ranking)
+    .sort((a,b) => b[1]-a[1])
+    .forEach(([name, score]) => {
+        const el = document.createElement("div");
+        el.className = "ranking-item";
+        el.innerHTML = `<span>${name}</span><span>${score}</span>`;
+        rankingDiv.appendChild(el);
     });
 }
 
@@ -863,6 +921,40 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
+}
+
+let currentRoute = "";
+
+function openKillModal(route) {
+    currentRoute = route;
+    document.getElementById("killModal").classList.add("show");
+}
+
+function closeKillModal() {
+    document.getElementById("killModal").classList.remove("show");
+}
+
+async function confirmKill() {
+    const killer = document.getElementById("killer").value;
+
+    const updated = rawData.map(e => {
+        if (e.location === currentRoute) {
+            return { ...e, dead: true, cause: killer };
+        }
+        return e;
+    });
+
+    await fetch("/import", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "x-password": PASSWORD
+        },
+        body: JSON.stringify(updated)
+    });
+
+    closeKillModal();
+    loadData();
 }
 
 // MODAL CLOSE ON BACKGROUND
